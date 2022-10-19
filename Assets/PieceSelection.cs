@@ -1,0 +1,47 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using TMPro;
+
+public class PieceSelection : MonoBehaviour
+{
+    public PieceGen p;
+    public Controller Control;
+    Outline outline;
+    public bool IsOnTower;
+
+    void OnCollisionEnter(Collision coll)
+    {
+        Debug.Log(coll.collider.name);
+        if(coll.collider.tag == "LosePlane")
+        {
+            p.EndEffect(false);
+        }
+    }
+
+    void OnMouseOver()
+    {
+        if(outline == null && IsOnTower == true)
+        {
+            outline = gameObject.AddComponent<Outline>();
+
+            outline.OutlineMode = Outline.Mode.OutlineAndSilhouette;
+            outline.OutlineColor = Color.blue;
+            outline.OutlineWidth = 10f;
+        }
+    }
+
+    void OnMouseDown()
+    {
+        if(outline != null)
+        {
+            Control.ObtainLetter(this.gameObject);
+            this.gameObject.SetActive(false);
+        }
+    }
+
+    void OnMouseExit()
+    {
+        Destroy(outline);
+    }
+}
