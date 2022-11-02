@@ -12,7 +12,6 @@ public class PieceSelection : MonoBehaviour
 
     void OnCollisionEnter(Collision coll)
     {
-        Debug.Log(coll.collider.name);
         if(coll.collider.tag == "LosePlane")
         {
             p.EndEffect(false);
@@ -33,10 +32,12 @@ public class PieceSelection : MonoBehaviour
 
     void OnMouseDown()
     {
-        if(outline != null)
+        if(outline != null && p.cooldown == true)
         {
+            p.CooldownTimer();
             Control.ObtainLetter(this.gameObject);
             this.gameObject.SetActive(false);
+            
         }
     }
 

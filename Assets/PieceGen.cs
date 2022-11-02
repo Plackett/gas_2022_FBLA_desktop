@@ -10,18 +10,20 @@ using TMPro;
 public class PieceGen : MonoBehaviour
 {
     [SerializeField] private int difficulty;
-    [SerializeField] private List<string> wordlist;
+    public List<string> wordlist;
     [SerializeField] private GameObject Vrow;
     [SerializeField] private Material WinMat;
     [SerializeField] private Material LoseMat;
     private bool gen;
+    public bool cooldown;
     public bool verhor = false;
     static Randomsys num = new Randomsys();
     private List<GameObject> Tower = new List<GameObject>();
     private string alphabet = "ABCDEFGHIJKLMNOPQRSTUVXYZ";
-    // Start is called before the first frame update
     void Start()
     {
+        cooldown = true;
+        Generate(difficulty, wordlist);
     }
 
     void Destroy(List<GameObject> Tower)
@@ -51,8 +53,16 @@ public class PieceGen : MonoBehaviour
         }
     }
 
+    public IEnumerator CooldownTimer()
+    {
+        cooldown = false;
+        yield return new WaitForSeconds(0.75f);
+        cooldown = true;
+    }
+
     public void Generate(int diff, List<string> wordsraw)
     {
+        this.gameObject.GetComponent<Controller>().PieceCounter.GetComponent<TextMeshProUGUI>().text = string.Empty + wordsraw[0].Length;
         GameObject currow;
         string wlout = string.Empty;
         StringBuilder tempwords = new StringBuilder(diff);
@@ -75,14 +85,11 @@ public class PieceGen : MonoBehaviour
         {
             tempwords.Remove(c, 1);
             tempwords.Insert(c, wordsr[c]);
-            Debug.Log(wordsr[c]);
         }
         string words = tempwords.ToString();
-        Debug.Log(words);
         for(var i = 0; i < diff; i++)
         {
             verhor = !verhor;
-            Debug.Log(verhor);
             if (verhor == true)
             {
                 currow = Instantiate(Vrow);

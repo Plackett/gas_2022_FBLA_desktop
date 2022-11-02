@@ -8,116 +8,91 @@ using TMPro;
 public class Controller : MonoBehaviour
 {
     [SerializeField] private PieceGen pg;
-    [SerializeField] private TextMeshProUGUI HeightIn;
-    [SerializeField] private TextMeshProUGUI WordIn;
     [SerializeField] private GameObject wordtemp;
+    public GameObject PieceCounter;
     [SerializeField] private GameObject wordfolder;
     private List<string> words;
-    private Dictionary<string,List<string>> discoveredparts;
-    private Dictionary<string, GameObject> UI;
+    private string letters = string.Empty;
+    private List<GameObject> UI = new List<GameObject>();
 
     public void ObtainLetter(GameObject piece)
     {
+        PieceCounter.GetComponent<TextMeshProUGUI>().text = string.Empty + (pg.wordlist[0].Length - letters.Length);
+        if(pg.wordlist[0].Length - letters.Length <= 10){
+            PieceCounter.GetComponent<TextMeshProUGUI>().color = Color.red;
+        }
         piece.GetComponent<PieceSelection>().IsOnTower = false;
         string letter = piece.transform.GetChild(0).GetComponent<TextMeshPro>().text;
-        for(int i = 0; i < words.Count; i++)
-        {
-            for(int w = 0; w < words[i].Length; w++)
-            {
-                if(letter == words[i][w] + string.Empty)
-                {
-                    if (discoveredparts.ContainsKey(words[i]))
-                    {
-                        discoveredparts[words[i]].Add(letter);
-                    } else
-                    {
-                        List<string> wordnew = new List<string>();
-                        wordnew.Add(letter);
-                        discoveredparts.Add(words[i], wordnew);
+        letters = letters + letter;
+        checkLetters();
+        wincondition();
+    }
+
+    public void addUI(char letter, int pos){
+        int iters = 0;
+        GameObject uitemp = Instantiate(wordtemp, wordfolder.transform);
+        while(pos > 10){
+            iters++;
+            pos = pos - 11;
+        }
+        uitemp.GetComponent<RectTransform>().anchoredPosition = new Vector3(300 + (30*iters), 120-(pos*30),-100);
+        uitemp.GetComponent<TextMeshProUGUI>().text = letter + string.Empty;
+        UI.Add(uitemp);
+    }
+    public void wincondition(){
+        string winstring = string.Empty;
+        int wincrit = 0;
+        for(var i = 0; i < UI.Count;i++){
+            if(UI[i].GetComponent<TextMeshProUGUI>().color == Color.green){
+                winstring += UI[i].GetComponent<TextMeshProUGUI>().text;
+            }
+        }
+        if(letters.Length >= pg.wordlist[0].Length*2){
+            pg.EndEffect(false);
+        }
+        if(winstring.Length >= pg.wordlist[0].Length){
+            for(var v = 0; v < pg.wordlist[0].Length;v++){
+                int index = 0;
+                foreach(char c in winstring){
+                    index++;
+                    if(c == pg.wordlist[0][v]){
+                        if(index > 0){
+                            winstring.Remove(index-1,1);
+                        } else {
+                            winstring.Remove(0,1);
+                        }
+                        wincrit++;
                     }
                 }
             }
-            UpdateUI(words[i]);
+        }
+        if(wincrit >= pg.wordlist[0].Length){
+            pg.EndEffect(true);
+        } else {
+            Debug.Log(winstring);
+            Debug.Log(wincrit);
         }
     }
 
-    private void UpdateUI(string key)
-    {
-        List<string> temp = new List<string>();
-        string formattedstring = new string(char.Parse("_"),key.Length);
-        for(var x = 0; x < discoveredparts.Count; x++)
-        {
-            temp.Add(discoveredparts[key][x]);
-            Debug.Log(temp[x]);
-        }
-        if (!UI.ContainsKey(key))
-        {
-            GameObject newUI = Instantiate(wordtemp, new Vector3(-259f, 120 - (40 * UI.Count), -249f), Quaternion.identity, wordfolder.transform) as GameObject;
-            newUI.GetComponent<RectTransform>().anchoredPosition = new Vector3(-259f, 120 - (40 * UI.Count), -249f);
-            newUI.name = key;
-            UI.Add(key, newUI);
-        }
-        for (var o = 0; o < key.Length; o++)
-        {
-            for (var e = 0; e < temp.Count; e++)
-            {
-                if (temp[e] == key[o] + string.Empty)
-                {
-                    formattedstring = formattedstring.Remove(o, 1);
-                    formattedstring = formattedstring.Insert(o, key[o] + string.Empty) ;
-                    Debug.Log(key[o]);
-                    Debug.Log(formattedstring[o]);
-                    temp.RemoveAt(e);
+    public void checkLetters(){
+        clearUI();
+        string lettersclone = letters + string.Empty;
+        for(var e = 0; e < letters.Length;e++){
+            addUI(letters[e],e);
+            for(int i = 0;i < pg.wordlist.Count;i++){
+                foreach(char v in pg.wordlist[i]){
+                    if(v == lettersclone[e]){
+                        UI[e].GetComponent<TextMeshProUGUI>().color = Color.green;
+                        lettersclone.Remove(e,1);
+                    }
                 }
             }
-        }
-        UI[key].GetComponent<TextMeshProUGUI>().text = formattedstring;
-        if(formattedstring == key)
-        {
-            pg.EndEffect(true);
-        }
-    }
-
-    public void GenerateBut()
-    {
-        string[] wordlistarray = WordIn.text.ToUpper().Split(" ");
-        List<string> wordlist = wordlistarray.ToList();
-        Debug.Log(wordlist[0]);
-        string height = string.Empty;
-        var matches = Regex.Matches(HeightIn.text, @"\d+");
-        foreach (var match in matches)
-        {
-            height += match;
-        }
-        if (int.TryParse(height, out int difficulty) == true)
-        {
-            Debug.Log(difficulty);
-            pg.Generate(difficulty, wordlist);
-        } else
-        {
-            Debug.Log("invalid height");
-        }
-        words = wordlist;
-        discoveredparts = new Dictionary<string, List<string>>();
-        clearUI();
-        genUI(words);
-    }
-
-    void genUI(List<string> word)
-    {
-        foreach(string j in word)
-        {
-            GameObject newUI = Instantiate(wordtemp, new Vector3(-259f, 120 - (40 * UI.Count), -249f), Quaternion.identity, wordfolder.transform) as GameObject;
-            newUI.name = j;
-            newUI.GetComponent<RectTransform>().anchoredPosition = new Vector3(-259f, 120 - (40 * UI.Count), -249f);
-            UI.Add(j, newUI);
-            newUI.transform.GetComponent<TextMeshProUGUI>().text = new string(char.Parse("_"), j.Length);
         }
     }
     
     void clearUI()
     {
-        UI = new Dictionary<string, GameObject>();
+        UI = new List<GameObject>();
         for(var z = 0; z < wordfolder.transform.childCount; z++)
         {
             Destroy(wordfolder.transform.GetChild(z).gameObject);
