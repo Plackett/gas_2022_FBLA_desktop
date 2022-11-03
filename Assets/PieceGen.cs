@@ -74,7 +74,7 @@ public class PieceGen : MonoBehaviour
         {
             wlout = wlout + wordsraw[p];
         }
-        wlout = Regex.Replace(wlout, "[^A-Za-z]", string.Empty);
+        wlout = Regex.Replace(wlout, "[^A-Z]", string.Empty);
         string wordsr = new string(wlout.ToCharArray().
         OrderBy(s => (num.Next(2) % 2) == 0).ToArray());
         for(int d = 0; d < diff; d++){
