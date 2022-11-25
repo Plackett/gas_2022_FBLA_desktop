@@ -12,8 +12,10 @@ public class PieceGen : MonoBehaviour
     [SerializeField] private int difficulty;
     public List<string> wordlist;
     [SerializeField] private GameObject Vrow;
+    [SerializeField] private GameObject Vpos;
     [SerializeField] private Material WinMat;
     [SerializeField] private Material LoseMat;
+    public bool menubool;
     private bool gen;
     public bool cooldown;
     public bool verhor = false;
@@ -93,13 +95,13 @@ public class PieceGen : MonoBehaviour
             if (verhor == true)
             {
                 currow = Instantiate(Vrow);
-                currow.transform.position = new Vector3(0, 2 * i, 0);
+                currow.transform.position = new Vector3(Vpos.transform.position.x, Vpos.transform.position.y+(2 * i), Vpos.transform.position.z);
             }
             else
             {
                 currow = Instantiate(Vrow);
                 currow.transform.Rotate(new Vector3(0,-90f,0),Space.Self);
-                currow.transform.position = new Vector3(-2, 2 * i, -2);
+                currow.transform.position = new Vector3(Vpos.transform.position.x-2, Vpos.transform.position.y+(2 * i), Vpos.transform.position.z-2);
             }
             int seedresult = Random.Range(0,2);
             for(int v = 0; v < 3; v++){
@@ -116,7 +118,7 @@ public class PieceGen : MonoBehaviour
                 }
                 Tower.Add(currow.transform.GetChild(v).gameObject);
                 currow.transform.GetChild(v).GetComponent<PieceSelection>().p = this;
-                currow.transform.GetChild(v).GetComponent<PieceSelection>().IsOnTower = true;
+                currow.transform.GetChild(v).GetComponent<PieceSelection>().IsOnTower = !menubool;
                 currow.transform.GetChild(v).GetComponent<PieceSelection>().Control = this.gameObject.GetComponent<Controller>();
             }
         }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using TMPro;
 
 public class Controller : MonoBehaviour
@@ -13,11 +14,17 @@ public class Controller : MonoBehaviour
     [SerializeField] private GameObject wordfolder;
     private List<string> words;
     private string letters = string.Empty;
+    public bool menubool;
     private List<GameObject> UI = new List<GameObject>();
 
+    public void Start(){
+        if(!menubool){
+            SceneManager.LoadScene("How2Play",LoadSceneMode.Additive);
+        }
+    }
     public void ObtainLetter(GameObject piece)
     {
-        PieceCounter.GetComponent<TextMeshProUGUI>().text = string.Empty + (pg.wordlist[0].Length - letters.Length);
+        PieceCounter.GetComponent<TextMeshProUGUI>().text = string.Empty + (pg.wordlist[0].Length*2 - letters.Length-1);
         if(pg.wordlist[0].Length - letters.Length <= 10){
             PieceCounter.GetComponent<TextMeshProUGUI>().color = Color.red;
         }
@@ -31,20 +38,20 @@ public class Controller : MonoBehaviour
     public void addUI(char letter, int pos){
         int iters = 0;
         GameObject uitemp = Instantiate(wordtemp, wordfolder.transform);
-        while(pos > 10){
+        while(pos > 5){
             iters++;
-            pos = pos - 11;
+            pos = pos - 6;
         }
-        uitemp.GetComponent<RectTransform>().anchoredPosition = new Vector3(300 + (30*iters), 120-(pos*30),-100);
-        uitemp.GetComponent<TextMeshProUGUI>().text = letter + string.Empty;
+        uitemp.GetComponent<RectTransform>().anchoredPosition = new Vector3(220 + (60*iters), 140-(pos*60),-100);
+        uitemp.transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = letter + string.Empty;
         UI.Add(uitemp);
     }
     public void wincondition(){
         string winstring = string.Empty;
         int wincrit = 0;
         for(var i = 0; i < UI.Count;i++){
-            if(UI[i].GetComponent<TextMeshProUGUI>().color == Color.green){
-                winstring += UI[i].GetComponent<TextMeshProUGUI>().text;
+            if(UI[i].transform.GetChild(0).GetComponent<TextMeshProUGUI>().color == Color.green){
+                winstring += UI[i].transform.GetChild(0).GetComponent<TextMeshProUGUI>().text;
             }
         }
         if(letters.Length >= pg.wordlist[0].Length*2){
@@ -82,10 +89,16 @@ public class Controller : MonoBehaviour
             for(int i = 0;i < pg.wordlist.Count;i++){
                 foreach(char v in pg.wordlist[i]){
                     if(v == lettersclone[e]){
-                        UI[e].GetComponent<TextMeshProUGUI>().color = Color.green;
-                        lettersclone.Remove(e,1);
+                        UI[e].transform.GetChild(0).GetComponent<TextMeshProUGUI>().color = Color.green;
+                        lettersclone = lettersclone.Remove(e,1);
+                        lettersclone = lettersclone.Insert(e," ");
                     }
                 }
+            }
+        }
+        for(var i = 0;i<lettersclone.Length;i++){
+            if(lettersclone[i] != ' '){
+                UI[i].transform.GetChild(0).GetComponent<TextMeshProUGUI>().color = Color.red;
             }
         }
     }
