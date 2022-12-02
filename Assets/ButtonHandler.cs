@@ -16,10 +16,8 @@ public class ButtonHandler : MonoBehaviour
 {
     [SerializeField] private List<RenderFeatureToggle> renderFeatures = new List<RenderFeatureToggle>();
     [SerializeField] private UniversalRenderPipelineAsset pipelineAsset;
-    int FrameCounter = 0;
     public GameObject Parent;
     private string origtext;
-    private bool cursornah = false;
     // Start is called before the first frame update
     void Start()
     {
@@ -29,16 +27,7 @@ public class ButtonHandler : MonoBehaviour
     // Update is called once per frame
     void FixedUpdate()
     {
-        FrameCounter++;
-        if(FrameCounter >= 30){
-            cursornah = !cursornah;
-            if(cursornah == true){
-                Parent.GetComponent<TextMeshProUGUI>().text = origtext + "|";
-            } else {
-                Parent.GetComponent<TextMeshProUGUI>().text = origtext;
-            }
-            FrameCounter = 0;
-        }
+        
     }
 
     public void Pressed(){
