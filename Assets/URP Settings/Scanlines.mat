@@ -35,7 +35,7 @@ Material:
     m_Floats:
     - _QueueControl: 0
     - _QueueOffset: 0
-    - _ScanLineAmont: 0.082
+    - _ScanLineAmont: 0.105
     - _ScanLineSped: 0.1
     m_Colors:
     - _Color: {r: 0.059042353, g: 0.2924528, b: 0.23725441, a: 0}
